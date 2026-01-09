@@ -5,4 +5,4 @@
 
 ## 🛠️ 工具列表
 
-1. Var.Ave-Calculator🧮：样本均值 x̄ 样本方差 s² 计算器 &nbsp;&nbsp; - &nbsp; [[点击进入]](https://haoknight.github.io/Tools/Var.Ave-Calculator/)
+> 1. Var.Ave-Calculator🧮：样本均值 x̄ 样本方差 s² 计算器 &nbsp;&nbsp; - &nbsp; [[点击进入]](https://haoknight.github.io/Tools/Var.Ave-Calculator/)
