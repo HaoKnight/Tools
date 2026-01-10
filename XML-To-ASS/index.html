@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <!-- 头部区域：包含页面元数据、样式表和脚本 -->
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>bilibili ASS 弹幕在线转换</title>
+
+    <style>
+      /* --- 全局样式重置 --- */
+      html,
+      body {
+        font-family: "Microsoft YaHei", Helvetica, Arial, sans-serif; /* 字体设置 */
+        font-size: 16px;
+        font-weight: normal;
+        line-height: 20px;
+        margin: 0;
+        padding: 0;
+        background: #fdfdfd; /* 背景颜色 */
+        padding-bottom: 40px;
+      }
+
+      /* --- 布局容器 --- */
+      #main-body {
+        width: 900px; /* 内容区域宽度 */
+        margin: auto; /* 水平居中 */
+      }
+
+      h1 {
+        color: #d95e7f; /* B站粉色 */
+        font-size: 40px;
+        line-height: 60px;
+        margin: 40px 0 20px 0;
+        padding: 0;
+        font-weight: bold;
+      }
+
+      header {
+        display: flex;
+        flex-direction: column; /* 垂直排布方便整体居中 */
+        height: 200px;
+        align-items: center; /* 垂直居中 */
+        justify-content: center; /* 水平居中 */
+        gap: 20px; /* 元素间距 */
+      }
+
+      /* 上侧介绍框 */
+      #intro {
+        border: 2px solid #f25d8e;
+        height: 80px;
+        line-height: 40px;
+        font-size: 20px;
+        padding: 18px;
+        background: #f8f8f8;
+        border-radius: 10px; /* 圆角 */
+        color: #333;
+        text-align: center; /* 文字居中 */
+      }
+
+      /* 在线转换按钮 | Online convert button */
+      #convert {
+        background: #f25d8e;
+        color: #fff;
+        font-size: 32px;
+        line-height: 50px;
+        padding: 10px 50px;
+        width: 300px;
+        border-radius: 8px; /* 圆角 | Rounded corners */
+        display: block;
+        text-align: center;
+        cursor: pointer; /* 鼠标悬停手型 | Pointer cursor */
+        margin: 0 auto; /* 自身居中 | Center horizontally */
+        position: relative; /* 支持伪元素覆盖 | Enable pseudo-element overlay */
+        overflow: hidden; /* 防止动画外溢 | Clip animation overflow */
+      }
+
+      /* 倾斜覆盖层动画（类似示例） | Tilted overlay animation (like the sample) */
+      #convert::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 150%;
+        height: 100%;
+        transform: rotate(-45deg) translateY(-3em);
+        transform-origin: 0% 100%;
+        opacity: 0;
+        background-color: #f32b6d;
+        transition: all 1s cubic-bezier(0.2, 1, 0.3, 1);
+        pointer-events: none;
+      }
+
+      #convert:hover::before {
+        opacity: 1;
+        transform: rotate(0deg);
+      }
+
+      /* 悬停时显示“点击上传”文字 | Show “Click to upload” on hover */
+      #convert::after {
+        content: attr(data-hover);
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        color: #fff;
+        pointer-events: none;
+      }
+
+      #convert:hover {
+        color: transparent; /* 隐藏原文本以显示悬停文本 | Hide original text to show hover text */
+      }
+
+      #convert:hover::after {
+        opacity: 1;
+      }
+
+      h3 {
+        font-size: 24px;
+        font-weight: bold;
+        border-bottom: 2px #ccc solid; /* 底部下划线 */
+        padding: 10px 20px;
+        margin: 20px 0 10px;
+      }
+
+      /* 标题前的粉色装饰块 */
+      h3::before {
+        background: #f32b6d;
+        content: "";
+        display: block;
+        float: left;
+        position: relative;
+        height: 20px;
+        left: -20px;
+        width: 10px;
+      }
+
+      .in {
+        padding: 5px 5px;
+        border: 4px;
+      }
+
+      .p {
+        margin: 10px 10px;
+      }
+
+      a,
+      a:visited {
+        text-decoration: none;
+        color: #f25d8e;
+        outline: none;
+      }
+    </style>
+
+    <!-- 引入核心逻辑脚本 (复用 UserScript) -->
+    <script src="bilibili_ASS_Danmaku_Downloader.user.js"></script>
+
+    <!-- 
+      解析文件内容的辅助函数：
+      清理控制字符后调用 parseXML 进行处理 
+    -->
+    <script>
+      var parseFile = function (content) {
+        // 移除 ASCII 控制字符 (0x00-0x08, 0x0b, 0x0c, 0x0e-0x1f)
+        content = content.replace(
+          /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,
+          ""
+        );
+        return parseXML(content);
+      };
+    </script>
+
+    <!-- 页面通用交互脚本 -->
+    <script src="common.js"></script>
+  </head>
+  <body>
+    <!-- 页面主体容器 -->
+    <div id="main-body">
+      <h1>bilibili ASS 弹幕在线转换</h1>
+
+      <!-- 主要功能区 -->
+      <h3>在线转换</h3>
+      <div class="in" style="margin-bottom: 10px">
+        <div class="p" style="text-align: center; font-size: 1em">
+          您可以点击下方的在线转换按钮上传 XML 文件将其转换为 ASS
+          字幕文件。转换无需安装脚本或任何扩展。
+        </div>
+      </div>
+
+      <header>
+        <!-- 功能简介 -->
+        <div id="intro">
+          将 XML 弹幕文件转换为 ASS 格式<br />
+          兼容 libass 和 VSFilter 的 ASS 格式解析器<br />
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div id="side-buttons">
+          <label title="上传 XML 文件在线转换">
+            <span id="convert" data-hover="点击上传 XML">在线转换</span>
+            <!-- 隐藏的文件上传输入框 -->
+            <input id="upload" style="display: none" type="file" />
+          </label>
+        </div>
+      </header>
+
+      <!-- 底部链接 -->
+      <h3>相关脚本</h3>
+      <div class="in">
+        <div class="p">
+          更多小程序关注：<a href="https://knight-tools.de5.net/"
+            >Knight-Tools
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
