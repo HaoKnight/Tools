@@ -6,13 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <title>bilibili ASS 弹幕在线转换</title>
 
-    <!-- SEO 关键词和描述 -->
-    <meta name="keywords" content="bilibili, 哔哩哔哩, 弹幕, danmaku, 转换" />
-    <meta
-      name="description"
-      content="bilibili ASS Danmaku Converter，在线将 bilibili 弹幕 XML 文件转换为 ASS 字幕格式"
-    />
-
     <style>
       /* --- 全局样式重置 --- */
       html,
@@ -23,9 +16,6 @@
         line-height: 20px;
         margin: 0;
         padding: 0;
-      }
-
-      body {
         background: #fdfdfd; /* 背景颜色 */
         padding-bottom: 40px;
       }
@@ -33,33 +23,7 @@
       /* --- 布局容器 --- */
       #main-body {
         width: 900px; /* 内容区域宽度 */
-        margin: 0 auto; /* 水平居中 */
-      }
-
-      /* --- 标题样式 --- */
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6 {
-        margin: 0;
-        padding: 0;
-        font-size: 100%;
-        font-weight: normal;
-      }
-
-      a,
-      a:hover,
-      a:active,
-      a:visited {
-        text-decoration: none;
-        color: #f25d8e;
-        outline: none;
-      }
-
-      a img {
-        border: none;
+        margin: auto; /* 水平居中 */
       }
 
       h1 {
@@ -83,33 +47,17 @@
       /* 上侧介绍框 */
       #intro {
         border: 2px solid #f25d8e;
-        /* float: left;  移除浮动 */
         height: 80px;
         line-height: 40px;
         font-size: 20px;
         padding: 18px;
         background: #f8f8f8;
-        border-radius: 8px; /* 圆角 */
+        border-radius: 10px; /* 圆角 */
         color: #333;
         text-align: center; /* 文字居中 */
       }
 
-      #intro strong {
-        color: #000;
-        font-weight: normal;
-      }
-
-      /* 右侧按钮区域 */
-      #side-buttons {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        padding: 0;
-        text-align: center; /* 文字居中 */
-      }
-
-      /* 在线转换按钮 */
+      /* 在线转换按钮 | Online convert button */
       #convert {
         background: #f25d8e;
         color: #fff;
@@ -117,17 +65,56 @@
         line-height: 50px;
         padding: 10px 50px;
         width: 300px;
-        border-radius: 8px; /* 圆角 */
-        /* clear: both; */
+        border-radius: 8px; /* 圆角 | Rounded corners */
         display: block;
-        /* float: right; 移除浮动 */
         text-align: center;
-        cursor: pointer; /* 鼠标悬停手型 */
-        margin: 0 auto; /* 自身居中 */
+        cursor: pointer; /* 鼠标悬停手型 | Pointer cursor */
+        margin: 0 auto; /* 自身居中 | Center horizontally */
+        position: relative; /* 支持伪元素覆盖 | Enable pseudo-element overlay */
+        overflow: hidden; /* 防止动画外溢 | Clip animation overflow */
+      }
+
+      /* 倾斜覆盖层动画（类似示例） | Tilted overlay animation (like the sample) */
+      #convert::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 150%;
+        height: 100%;
+        transform: rotate(-45deg) translateY(-3em);
+        transform-origin: 0% 100%;
+        opacity: 0;
+        background-color: #f32b6d;
+        transition: all 1s cubic-bezier(0.2, 1, 0.3, 1);
+        pointer-events: none;
+      }
+
+      #convert:hover::before {
+        opacity: 1;
+        transform: rotate(0deg);
+      }
+
+      /* 悬停时显示“点击上传”文字 | Show “Click to upload” on hover */
+      #convert::after {
+        content: attr(data-hover);
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        color: #fff;
+        pointer-events: none;
       }
 
       #convert:hover {
-        background: #f32b6d; /* 悬停加深颜色 */
+        color: transparent; /* 隐藏原文本以显示悬停文本 | Hide original text to show hover text */
+      }
+
+      #convert:hover::after {
+        opacity: 1;
       }
 
       h3 {
@@ -144,19 +131,26 @@
         content: "";
         display: block;
         float: left;
+        position: relative;
         height: 20px;
         left: -20px;
-        position: relative;
         width: 10px;
       }
 
       .in {
-        padding: 5px 2em;
+        padding: 5px 5px;
         border: 4px;
       }
 
       .p {
-        margin: 0.5em 0;
+        margin: 10px 10px;
+      }
+
+      a,
+      a:visited {
+        text-decoration: none;
+        color: #f25d8e;
+        outline: none;
       }
     </style>
 
@@ -186,6 +180,15 @@
     <div id="main-body">
       <h1>bilibili ASS 弹幕在线转换</h1>
 
+      <!-- 主要功能区 -->
+      <h3>在线转换</h3>
+      <div class="in" style="margin-bottom: 10px">
+        <div class="p" style="text-align: center; font-size: 1em">
+          您可以点击下方的在线转换按钮上传 XML 文件将其转换为 ASS
+          字幕文件。转换无需安装脚本或任何扩展。
+        </div>
+      </div>
+
       <header>
         <!-- 功能简介 -->
         <div id="intro">
@@ -196,27 +199,20 @@
         <!-- 操作按钮区域 -->
         <div id="side-buttons">
           <label title="上传 XML 文件在线转换">
-            <span id="convert">在线转换</span>
+            <span id="convert" data-hover="点击上传 XML">在线转换</span>
             <!-- 隐藏的文件上传输入框 -->
             <input id="upload" style="display: none" type="file" />
           </label>
         </div>
       </header>
 
-      <!-- 主要功能区 -->
-      <h3>在线转换</h3>
-      <div class="in">
-        <div class="p">
-          您可以点击上方的在线转换按钮上传 XML 文件将其转换为 ASS
-          字幕文件。转换无需安装脚本或任何扩展。
-        </div>
-      </div>
-
       <!-- 底部链接 -->
       <h3>相关脚本</h3>
       <div class="in">
         <div class="p">
-          更多脚本参考：<a href="https://knight-tools.de5.net/">Knight-Tools</a>
+          更多小程序关注：<a href="https://knight-tools.de5.net/"
+            >Knight-Tools
+          </a>
         </div>
       </div>
     </div>
