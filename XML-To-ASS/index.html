@@ -22,8 +22,11 @@
 
       /* --- 布局容器 --- */
       #main-body {
-        width: 900px; /* 内容区域宽度 */
+        max-width: 900px; /* 最大宽度 */
+        width: 100%; /* 自适应宽度 */
         margin: auto; /* 水平居中 */
+        padding: 0 20px; /* 左右内边距，防止内容贴边 */
+        box-sizing: border-box; /* 确保内边距不影响总宽度 */
       }
 
       h1 {
